@@ -28,7 +28,7 @@
     "isolatedModules": true,
     "noEmit": false,
     "outDir": "./dist",
-    "types": ["node"],
+    "types": ["node", "jest"],
     "baseUrl": "./src",
     "tsBuildInfoFile": "dist/.tsbuildinfo",
     "paths": {

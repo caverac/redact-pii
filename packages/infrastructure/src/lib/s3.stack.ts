@@ -1,7 +1,6 @@
 import * as path from 'path'
 import * as cdk from 'aws-cdk-lib'
 import type * as constructs from 'constructs'
-import { getAllowedOrigins } from 'utils/cors'
 
 interface S3StackProps extends cdk.StackProps {
   deploymentEnvironment: string
@@ -45,16 +44,6 @@ export class S3Stack extends cdk.Stack {
     // bucket
     const bucket = new cdk.aws_s3.Bucket(this.scope, 'S3Bucket', {
       bucketName: `pii-bucket-${this.deploymentEnvironment}`,
-      cors: [
-        {
-          allowedMethods: [
-            cdk.aws_s3.HttpMethods.GET,
-            cdk.aws_s3.HttpMethods.PUT
-          ],
-          allowedOrigins: getAllowedOrigins(this.deploymentEnvironment),
-          allowedHeaders: ['*']
-        }
-      ],
       removalPolicy: cdk.RemovalPolicy.DESTROY
     })
 
