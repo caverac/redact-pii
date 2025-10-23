@@ -15,7 +15,8 @@
     "lintfix:prettier": "prettier --write .",
     "lint": "yarn lint:eslint && yarn lint:prettier",
     "lint:fix": "yarn lintfix:eslint && yarn lintfix:prettier",
-    "nuke": "rm -rf node_modules yarn.lock && yarn workspaces foreach nuke"
+    "nuke": "rm -rf node_modules yarn.lock && yarn workspaces foreach -A run nuke",
+    "test": "yarn workspaces foreach -A run test"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
