@@ -1,0 +1,14 @@
+# cdk
+cdk.out
+
+# jest
+coverage
+
+# aws - cli
+aws
+
+# change log
+CHANGELOG.md
+
+# dist
+dist

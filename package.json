@@ -1,0 +1,50 @@
+{
+  "name": "redact-pii",
+  "private": true,
+  "version": "0.1.0",
+  "author": "caverac@gmail.com",
+  "license": "Apache-2.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "esbuild": "esbuild",
+    "lint:eslint": "eslint .",
+    "lintfix:eslint": "eslint --fix .",
+    "lint:prettier": "prettier --check .",
+    "lintfix:prettier": "prettier --write .",
+    "lint": "yarn lint:eslint && yarn lint:prettier",
+    "lint:fix": "yarn lintfix:eslint && yarn lintfix:prettier",
+    "nuke": "rm -rf node_modules yarn.lock && yarn workspaces foreach nuke"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^1.4.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.38.0",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/gitlab": "^13.2.9",
+    "@types/jest": "^30.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-cdk": "^1.8.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsdoc": "^61.1.5",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.4.0",
+    "jest": "^30.2.0",
+    "prettier": "^3.6.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "semantic-release": "^25.0.1",
+    "ts-jest": "^29.4.5",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "yarn@4.10.3",
+  "engines": {
+    "node": ">=25.0.0"
+  }
+}

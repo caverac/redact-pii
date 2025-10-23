@@ -1,0 +1,18 @@
+# local
+.envrc
+
+# node
+.yarn
+node_modules
+yarn.error
+dist
+.swc
+
+# cdk
+cdk.out
+
+# python
+notebooks
+
+# ide
+*.code-workspace

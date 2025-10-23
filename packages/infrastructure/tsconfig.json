@@ -1,0 +1,41 @@
+{
+  "extends": "../../tsconfig.build.json",
+
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "declaration": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "inlineSources": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": false,
+    "outDir": "./dist",
+    "types": ["node"],
+    "baseUrl": "./src",
+    "tsBuildInfoFile": "dist/.tsbuildinfo",
+    "paths": {
+      "@models/types/crawler": ["../../types/dist/crawler/index"],
+      "@models/types/api": ["../../types/dist/api/index"],
+      "@models/types/cdk": ["../../types/dist/cdk/index"]
+    }
+  },
+  "include": ["src/**/*"]
+}

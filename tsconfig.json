@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.build.json",
+
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noEmit": true
+  },
+  "references": [],
+  "include": ["./packages/**/*"],
+  "exclude": [
+    "**/node_modules",
+    "**/dist",
+    "**/coverage",
+    "**/coverage-ts",
+    "**/cdk.out"
+  ]
+}

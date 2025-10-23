@@ -1,0 +1,28 @@
+{
+  "name": "@redact-pii/infrastructure",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "scripts": {
+    "test": "LOGGING_LEVEL=silent jest",
+    "test:one": "ts-node test.ts --runInBand",
+    "ts-coverage": "typescript-coverage-report --threshold 100",
+    "cdk": "cdk",
+    "nuke": "rm -rf dist node_modules"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "aws-cdk": "2.1031.0",
+    "eslint-plugin-cdk": "^1.8.0",
+    "ts-jest": "^29.4.5",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3",
+    "typescript-coverage-report": "^1.1.1"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.220.0",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.25.11",
+    "zod": "^4.1.12"
+  }
+}
