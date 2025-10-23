@@ -23,17 +23,20 @@ This package contains the AWS CDK infrastructure code for deploying a transparen
 Before deploying, ensure you have:
 
 1. **AWS CLI** configured with appropriate credentials
+
    ```bash
    aws configure
    ```
 
 2. **Node.js** (v18 or higher) and Yarn installed
+
    ```bash
    node --version  # Should be v18+
    yarn --version
    ```
 
 3. **AWS CDK** bootstrapped in your target account/region
+
    ```bash
    # Bootstrap your AWS environment (one-time setup per account/region)
    yarn workspace @redact-pii/infrastructure cdk bootstrap
@@ -157,30 +160,30 @@ graph TB
     subgraph "Client Applications"
         App[Application/SDK]
     end
-    
+
     subgraph "AWS Account"
         subgraph "S3 Object Lambda"
             OLAP[Object Lambda Access Point<br/>pii-object-lambda-ap-{env}]
         end
-        
+
         subgraph "S3 Access Points"
             SAP[S3 Access Point<br/>pii-access-point-{env}]
         end
-        
+
         subgraph "Lambda"
             Lambda[Redaction Lambda<br/>redact-pii__redact-lambda]
         end
-        
+
         subgraph "S3"
             Bucket[S3 Bucket<br/>pii-bucket-{env}]
         end
-        
+
         subgraph "SSM Parameter Store"
             SSM[Parameters<br/>/pii/clientId/credentials]
             SSMBucket[/pii/s3/bucket-arn<br/>/pii/s3/bucket-name]
         end
     end
-    
+
     App -->|GetObject via OLAP ARN| OLAP
     OLAP -->|Invokes on GetObject| Lambda
     Lambda -->|Reads from| SAP
@@ -189,7 +192,7 @@ graph TB
     Lambda -->|Updates Redacted File| Bucket
     Lambda -->|Returns Full Credentials| OLAP
     OLAP -->|Returns to Client| App
-    
+
     style OLAP fill:#ff9900
     style Lambda fill:#ff9900
     style Bucket fill:#569a31
@@ -205,11 +208,13 @@ graph TB
 **Purpose**: Stores credential files (redacted after first access)
 
 **Configuration**:
+
 - CORS enabled for GET and PUT operations
 - Removal policy: `DESTROY` (deleted when stack is destroyed)
 - Allowed origins: Configured per environment
 
 **Outputs**:
+
 - Bucket ARN stored in SSM: `/pii/s3/bucket-arn`
 - Bucket name stored in SSM: `/pii/s3/bucket-name`
 
@@ -220,6 +225,7 @@ graph TB
 **Purpose**: Provides access to the S3 bucket for the Object Lambda function
 
 **Configuration**:
+
 - Linked to the S3 bucket
 - Used as the supporting access point for Object Lambda
 
@@ -230,16 +236,19 @@ graph TB
 **Purpose**: Handles credential redaction and SSM integration
 
 **Configuration**:
+
 - Runtime: Node.js 22.x
 - Memory: 128 MB
 - Timeout: 25 seconds
 - Entry point: `packages/app/src/lambdas/redact/lambda_handler.ts`
 
 **Environment Variables**:
+
 - `ENVIRONMENT`: Deployment environment (development/production)
 - `BUCKET_NAME`: Name of the S3 bucket
 
 **IAM Permissions**:
+
 - `s3:GetObject`, `s3:PutObject` - Read/write to S3 bucket and access point
 - `s3-object-lambda:WriteGetObjectResponse` - Return transformed objects
 - `ssm:GetParameter`, `ssm:GetParameters`, `ssm:PutParameter` - Store/retrieve credentials from SSM
@@ -253,13 +262,13 @@ sequenceDiagram
     participant Lambda
     participant S3
     participant SSM
-    
+
     Client->>OLAP: GetObject(credentials.json)
     OLAP->>Lambda: Invoke with request context
-    
+
     Lambda->>S3: GetObject (via Access Point)
     S3-->>Lambda: Return file content
-    
+
     alt File contains unredacted credentials
         Lambda->>Lambda: Detect unredacted API keys
         Lambda->>SSM: PutParameter (store full credentials)
@@ -267,7 +276,7 @@ sequenceDiagram
     else File contains redacted credentials
         Lambda->>SSM: GetParameter (fetch full credentials)
     end
-    
+
     Lambda->>OLAP: WriteGetObjectResponse (full credentials)
     OLAP-->>Client: Return full credentials
 ```
@@ -279,11 +288,13 @@ sequenceDiagram
 **Purpose**: Intercepts S3 GetObject requests and transforms responses via Lambda
 
 **Configuration**:
+
 - Supporting Access Point: Links to the S3 Access Point
 - Transformation: Applied to `GetObject` operations
 - Lambda Function: Executes the redaction Lambda
 
 **Usage**:
+
 ```python
 # Access via Object Lambda (returns full credentials)
 import boto3
@@ -298,6 +309,7 @@ response = s3.get_object(
 #### 5. SSM Parameters
 
 **Resources**:
+
 - `/pii/s3/bucket-arn` - S3 bucket ARN
 - `/pii/s3/bucket-name` - S3 bucket name
 - `/pii/{clientId}/credentials` - Stored credentials (created by Lambda)
@@ -319,6 +331,7 @@ export ENVIRONMENT=development  # Options: 'development' or 'production'
 ### CDK Context
 
 Additional CDK configuration is in `cdk.json`:
+
 - Feature flags for CDK behavior
 - File watching patterns
 - Synthesis settings
@@ -328,16 +341,19 @@ Additional CDK configuration is in `cdk.json`:
 ### First-Time Deployment
 
 1. **Set environment**:
+
    ```bash
    export ENVIRONMENT=development
    ```
 
 2. **Review changes**:
+
    ```bash
    yarn workspace @redact-pii/infrastructure cdk diff
    ```
 
 3. **Deploy stack**:
+
    ```bash
    yarn workspace @redact-pii/infrastructure cdk deploy
    ```
@@ -352,6 +368,7 @@ Additional CDK configuration is in `cdk.json`:
 1. **Modify code** in `src/lib/s3.stack.ts` or related files
 
 2. **View changes**:
+
    ```bash
    ENVIRONMENT=development yarn workspace @redact-pii/infrastructure cdk diff
    ```
@@ -364,19 +381,21 @@ Additional CDK configuration is in `cdk.json`:
 ### Testing After Deployment
 
 1. **Upload a test file**:
+
    ```bash
    aws s3 cp test-credentials.json s3://pii-bucket-development/
    ```
 
 2. **Access via Object Lambda**:
+
    ```python
    import boto3
-   
+
    s3 = boto3.client('s3')
-   
+
    # Get Object Lambda ARN from AWS Console or deployment outputs
    olap_arn = 'arn:aws:s3-object-lambda:us-east-1:123456789:accesspoint/pii-object-lambda-ap-development'
-   
+
    response = s3.get_object(Bucket=olap_arn, Key='test-credentials.json')
    content = response['Body'].read().decode('utf-8')
    print(content)  # Should contain full credentials
@@ -401,11 +420,13 @@ ENVIRONMENT=development yarn workspace @redact-pii/infrastructure cdk destroy
 If `cdk destroy` fails, you may need to manually delete:
 
 1. **S3 Bucket Objects**:
+
    ```bash
    aws s3 rm s3://pii-bucket-development --recursive
    ```
 
 2. **SSM Parameters**:
+
    ```bash
    aws ssm delete-parameters --names $(aws ssm describe-parameters --query 'Parameters[?starts_with(Name, `/pii/`)].Name' --output text)
    ```
@@ -420,6 +441,7 @@ If `cdk destroy` fails, you may need to manually delete:
 ### Error: "Cannot deploy to local environment"
 
 **Solution**: Set `ENVIRONMENT` to `development` or `production`:
+
 ```bash
 export ENVIRONMENT=development
 ```
@@ -427,6 +449,7 @@ export ENVIRONMENT=development
 ### Error: "esbuild not found"
 
 **Solution**: Ensure the root `package.json` has the esbuild script:
+
 ```json
 {
   "scripts": {
@@ -438,6 +461,7 @@ export ENVIRONMENT=development
 ### Error: "Stack already exists"
 
 **Solution**: Either update the existing stack or destroy it first:
+
 ```bash
 ENVIRONMENT=development yarn workspace @redact-pii/infrastructure cdk destroy
 ```
@@ -445,17 +469,20 @@ ENVIRONMENT=development yarn workspace @redact-pii/infrastructure cdk destroy
 ### Lambda Function Errors
 
 **View logs**:
+
 ```bash
 aws logs tail /aws/lambda/redact-pii__redact-lambda --follow
 ```
 
 **Check IAM permissions**:
+
 - Ensure Lambda has access to S3 access point
 - Verify SSM parameter permissions
 
 ### Object Lambda Not Working
 
 **Verify resources**:
+
 1. Check Object Lambda Access Point exists in AWS Console
 2. Verify Lambda function is attached
 3. Test Lambda function independently

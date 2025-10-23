@@ -69,7 +69,9 @@ describe('rewriteCredential', () => {
         Key: 'test-key.json'
       })
 
-      const bodyContent = JSON.parse((s3Call as { Body: string }).Body)
+      const bodyContent = JSON.parse(
+        (s3Call as { Body: string }).Body
+      ) as CredentialsFile
       expect(bodyContent.credentials).toEqual([
         { clientId: 'client-1', apiKey: '****3xyz' },
         { clientId: 'client-2', apiKey: '****6uvw' }
@@ -176,7 +178,7 @@ describe('rewriteCredential', () => {
       expect(s3Mock.calls()).toHaveLength(1)
       const bodyContent = JSON.parse(
         (s3Mock.call(0).args[0].input as { Body: string }).Body
-      )
+      ) as CredentialsFile
       expect(bodyContent.credentials).toEqual([
         { clientId: 'client-1', apiKey: '****3xyz' },
         { clientId: 'client-2', apiKey: '****6uvw' }
@@ -297,7 +299,7 @@ describe('rewriteCredential', () => {
 
       const bodyContent = JSON.parse(
         (s3Mock.call(0).args[0].input as { Body: string }).Body
-      )
+      ) as CredentialsFile
       expect(bodyContent.credentials).toEqual([
         { clientId: 'client-1', apiKey: '****a' },
         { clientId: 'client-2', apiKey: '****ab' },

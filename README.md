@@ -7,6 +7,7 @@
 Redact PII is an AWS-based solution that provides **transparent credential redaction** for files stored in S3. Using S3 Object Lambda, the system automatically intercepts read requests and returns full credentials to authorized applications while storing only redacted versions in S3.
 
 This approach enables:
+
 - ✅ **Zero application changes** - Only update the bucket name/ARN
 - ✅ **Backward compatibility** - Direct S3 access returns redacted content
 - ✅ **Automatic redaction** - Credentials are redacted on first access
@@ -20,20 +21,20 @@ graph TB
     subgraph "Client Layer"
         App[Application/SDK]
     end
-    
+
     subgraph "AWS S3 Object Lambda"
         OLAP[Object Lambda Access Point]
     end
-    
+
     subgraph "AWS Lambda"
         Lambda[Redaction Lambda<br/>Node.js 22.x]
     end
-    
+
     subgraph "AWS Storage"
         S3[(S3 Bucket<br/>Redacted Files)]
         SSM[(SSM Parameter Store<br/>Full Credentials)]
     end
-    
+
     App -->|1. GetObject via OLAP ARN| OLAP
     OLAP -->|2. Invoke Lambda| Lambda
     Lambda -->|3. Read File| S3
@@ -41,7 +42,7 @@ graph TB
     Lambda -->|5. Update with<br/>Redacted Version| S3
     Lambda -->|6. Return Full<br/>Credentials| OLAP
     OLAP -->|7. Response| App
-    
+
     style OLAP fill:#ff9900
     style Lambda fill:#ff9900
     style S3 fill:#569a31
@@ -64,14 +65,13 @@ graph TB
 ```json
 // Original file in S3
 {
-  "credentials": [
-    {"clientId": "client-1", "apiKey": "sk-abc123xyz"}
-  ],
+  "credentials": [{ "clientId": "client-1", "apiKey": "sk-abc123xyz" }],
   "lastUpdated": "2025-10-23T12:00:00Z"
 }
 ```
 
 **After first access via Object Lambda:**
+
 - Application receives full credentials: `"apiKey": "sk-abc123xyz"`
 - S3 file is updated: `"apiKey": "****3xyz"` (redacted)
 - SSM stores full credential: `/pii/client-1/credentials` → `sk-abc123xyz`
@@ -97,6 +97,7 @@ redact-pii/
 Contains the Lambda function implementation and credential management utilities.
 
 **Key Features:**
+
 - Lambda handler for S3 Object Lambda redaction
 - Credential storage/retrieval with SSM
 - Winston-based structured logging
@@ -109,6 +110,7 @@ Contains the Lambda function implementation and credential management utilities.
 AWS CDK infrastructure code for deploying the entire system.
 
 **Resources Created:**
+
 - S3 bucket for storing redacted credentials
 - S3 Access Point for Lambda access
 - S3 Object Lambda Access Point for transparent redaction
@@ -141,11 +143,13 @@ yarn install
 ### Quick Deploy
 
 1. **Set environment**:
+
    ```bash
    export ENVIRONMENT=development
    ```
 
 2. **Deploy infrastructure**:
+
    ```bash
    yarn workspace @redact-pii/infrastructure cdk deploy
    ```
@@ -153,9 +157,10 @@ yarn install
 3. **Note the Object Lambda Access Point ARN** from the deployment outputs
 
 4. **Use in your application**:
+
    ```python
    import boto3
-   
+
    s3 = boto3.client('s3')
    response = s3.get_object(
        Bucket='arn:aws:s3-object-lambda:us-east-1:ACCOUNT:accesspoint/pii-object-lambda-ap-development',
@@ -219,6 +224,7 @@ The system supports two environments:
 - **`production`** - Production environment
 
 Set via environment variable:
+
 ```bash
 export ENVIRONMENT=development
 ```
@@ -230,12 +236,12 @@ Configure allowed origins in `packages/infrastructure/src/utils/cors.ts`:
 ```typescript
 export function getAllowedOrigins(env: string): string[] {
   if (env === 'development') {
-    return ['http://localhost:3000'];
+    return ['http://localhost:3000']
   }
   if (env === 'production') {
-    return ['https://example.com'];
+    return ['https://example.com']
   }
-  return ['*'];
+  return ['*']
 }
 ```
 
@@ -275,11 +281,13 @@ jupyter notebook notebooks/redact-pii.ipynb
 ### IAM Permissions Required
 
 **For Lambda Function:**
+
 - `s3:GetObject`, `s3:PutObject` - Read/write to S3 and Access Point
 - `s3-object-lambda:WriteGetObjectResponse` - Return transformed objects
 - `ssm:GetParameter`, `ssm:PutParameter` - Manage credentials in SSM
 
 **For Applications:**
+
 - `s3-object-lambda:GetObject` - Access via Object Lambda Access Point
 
 ### Encryption
@@ -293,6 +301,7 @@ jupyter notebook notebooks/redact-pii.ipynb
 ### CloudWatch Logs
 
 Lambda function logs available at:
+
 ```bash
 aws logs tail /aws/lambda/redact-pii__redact-lambda --follow
 ```
@@ -318,16 +327,17 @@ fields @timestamp, @message
 
 For a system processing **1 million requests per month**:
 
-| Service | Cost | Details |
-|---------|------|---------|
-| S3 Object Lambda | ~$500 | $0.0005 per request |
-| Lambda | ~$20 | 128 MB, 25s timeout |
-| S3 Storage | ~$5 | 1000 credential files |
-| SSM Parameter Store | Free | < 10,000 parameters |
-| Data Transfer | Variable | Depends on file sizes |
-| **Total** | **~$525/month** | |
+| Service             | Cost            | Details               |
+| ------------------- | --------------- | --------------------- |
+| S3 Object Lambda    | ~$500           | $0.0005 per request   |
+| Lambda              | ~$20            | 128 MB, 25s timeout   |
+| S3 Storage          | ~$5             | 1000 credential files |
+| SSM Parameter Store | Free            | < 10,000 parameters   |
+| Data Transfer       | Variable        | Depends on file sizes |
+| **Total**           | **~$525/month** |                       |
 
 **Cost optimization tips:**
+
 - Use Lambda caching to reduce SSM calls
 - Optimize Lambda memory/timeout settings
 - Use S3 Intelligent-Tiering for infrequently accessed files
@@ -339,6 +349,7 @@ An RFC (Request for Comments) document is available detailing the full implement
 **[→ Read the RFC](./packages/app/rfc.md)**
 
 The RFC covers:
+
 - **Problem statement** - Credentials in S3, complex dependency graph
 - **Proposed solution** - S3 Object Lambda implementation
 - **Timeline** - 9-week rollout plan (POC complete)
@@ -367,16 +378,20 @@ aws ssm delete-parameters --names $(aws ssm describe-parameters \
 ### Common Issues
 
 **Error: "Cannot deploy to local environment"**
+
 - Set `ENVIRONMENT` to `development` or `production`
 
 **Error: "esbuild not found"**
+
 - Ensure root `package.json` has `"esbuild": "esbuild"` script
 
 **Lambda signature mismatch errors**
+
 - Verify Lambda has correct IAM permissions
 - Check S3 Access Point configuration
 
 **Object Lambda not returning full credentials**
+
 - Check Lambda CloudWatch logs for errors
 - Verify SSM parameters exist
 - Test Lambda function independently
@@ -406,17 +421,20 @@ This is an open-source project. Contributions are welcome!
 ## Resources
 
 ### Documentation
+
 - [Application Package](./packages/app/README.md)
 - [Infrastructure Package](./packages/infrastructure/README.md)
 - [Implementation RFC](./packages/app/rfc.md)
 
 ### AWS Documentation
+
 - [S3 Object Lambda](https://docs.aws.amazon.com/AmazonS3/latest/userguide/transforming-objects.html)
 - [AWS CDK](https://docs.aws.amazon.com/cdk/)
 - [AWS Lambda](https://docs.aws.amazon.com/lambda/)
 - [SSM Parameter Store](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html)
 
 ### Related Projects
+
 - [AWS S3 Object Lambda Examples](https://github.com/aws-samples/amazon-s3-object-lambda-default-configuration)
 - [AWS CDK Examples](https://github.com/aws-samples/aws-cdk-examples)
 

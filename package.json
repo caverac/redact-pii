@@ -16,7 +16,8 @@
     "lint": "yarn lint:eslint && yarn lint:prettier",
     "lint:fix": "yarn lintfix:eslint && yarn lintfix:prettier",
     "nuke": "rm -rf node_modules yarn.lock && yarn workspaces foreach -A run nuke",
-    "test": "yarn workspaces foreach -A run test"
+    "test": "yarn workspaces foreach -A run test",
+    "ts-coverage": "yarn workspaces foreach -A run ts-coverage"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",

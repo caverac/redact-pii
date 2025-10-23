@@ -22,13 +22,13 @@ graph TD
     S3[S3 Bucket<br/>Redacted Files]
     Lambda[Lambda Function<br/>Redaction Logic]
     SSM[SSM Parameter Store<br/>Full Credentials]
-    
+
     Client -->|Access via OLAP| OLAP
     Client -->|Direct Access| S3
     OLAP --> Lambda
     Lambda -->|Read/Write| S3
     Lambda -->|Store/Retrieve| SSM
-    
+
     style OLAP fill:#ff9900
     style Lambda fill:#ff9900
     style SSM fill:#c925d1
@@ -114,7 +114,7 @@ print(content)
       "apiKey": "sk_live_abc123xyz"
     },
     {
-      "clientId": "client-2", 
+      "clientId": "client-2",
       "apiKey": "pk_test_def456uvw"
     }
   ],
@@ -138,6 +138,7 @@ Full credentials are stored in SSM Parameter Store with the following naming con
 ```
 
 Example:
+
 - Parameter Name: `/pii/client-1/credentials`
 - Parameter Value: `{"clientId":"client-1","apiKey":"sk_live_abc123xyz"}`
 
