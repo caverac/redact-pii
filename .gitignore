@@ -16,3 +16,6 @@ notebooks
 
 # ide
 *.code-workspace
+
+# test
+coverage

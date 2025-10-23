@@ -12,6 +12,7 @@
     "@types/aws-lambda": "^8.10.156",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.9.1",
+    "aws-sdk-client-mock": "^4.1.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",

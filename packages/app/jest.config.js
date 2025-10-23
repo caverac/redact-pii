@@ -2,10 +2,10 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  moduleDirectories: ['node_modules', '<rootDir>'],
+  moduleDirectories: ['node_modules', '<rootDir>/src', '<rootDir>'],
   testMatch: ['<rootDir>/**/*.spec.ts'],
   collectCoverageFrom: ['src/**/*.ts'],
-  coveragePathIgnorePatterns: ['<rootDir>/src/bin/index.ts'],
+  coveragePathIgnorePatterns: ['<rootDir>/src/util/logger.ts'],
   collectCoverage: true,
   coverageThreshold: {
     global: {
